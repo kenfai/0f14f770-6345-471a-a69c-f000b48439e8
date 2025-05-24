@@ -107,7 +107,7 @@ class StudentResponse
      * 
      * @return int
      */
-    public function getScore()
+    public function getScore(): int
     {
         return $this->score;
     }
@@ -117,12 +117,19 @@ class StudentResponse
      * 
      * @return int
      */
-    public function getTotalQuestions()
+    public function getTotalQuestions(): int
     {
         return count($this->responses);
     }
 
-    public function getScoreByStrand($strand)
+    /**
+     * Gets the total number of correct answers by question strand
+     * 
+     * @param string $strand
+     * 
+     * @return int
+     */
+    public function getScoreByStrand(string $strand): int
     {
         $score = 0;
 
@@ -137,7 +144,14 @@ class StudentResponse
         return $score;
     }
 
-    public function getTotalQuestionsByStrand($strand)
+    /**
+     * Gets the total number of questions by question strand
+     * 
+     * @param string $strand
+     * 
+     * @return int
+     */
+    public function getTotalQuestionsByStrand(string $strand): int
     {
         $total = 0;
 

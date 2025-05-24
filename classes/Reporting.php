@@ -47,15 +47,13 @@ final class Reporting
 
     private function output()
     {
-        $output = "";
-
         echo "Please enter the following\n";
 
         $student_id = readline("Student ID: ");
 
         $report_type = readline("Report to generate (1 for Diagnostic, 2 for Progress, 3 for Feedback): ");
 
-        $report = $this->generateReport($student_id, $report_type);
+        $this->generateReport($student_id, $report_type);
     }
 
     /**
@@ -105,8 +103,8 @@ final class Reporting
     private function generateDiagnosticReport($student_id)
     {
         $student_responses = $this->getStudentResponses($student_id);
-        $student_recent_response = $this->getLastCompletedResponse($student_responses);
-        
+        $student_recent_response = $this->getRecentCompletedResponse($student_responses);
+
         $assessment = $this->getAssessment($student_recent_response->assessment_id);
         $student_name = $student_recent_response->student->getFullName();
         $completed_date = $student_recent_response->completed_date->format('jS F Y h:i A');
@@ -124,7 +122,11 @@ final class Reporting
         foreach ($strands as $strand) {
             $score = $student_recent_response->getScoreByStrand($strand);
             $total_questions = $student_recent_response->getTotalQuestionsByStrand($strand);
-            $score_breakdown[] = "$strand: $score out of $total_questions correct";
+            $score_breakdown[] = str_replace(
+                search: 'Number',
+                replace: 'Numeracy',
+                subject: "$strand: $score out of $total_questions correct"
+            );
         }
 
         return array_merge([
@@ -132,13 +134,78 @@ final class Reporting
                 $result,
                 "",
             ],
-            $score_breakdown
+            $score_breakdown,
+            [""],
         );
     }
 
+    /**
+     * Generates a progress report for a student
+     * 
+     * @param string $student_id
+     * 
+     * @return array
+     */
     private function generateProgressReport($student_id)
     {
+        $report = [];
 
+        $student_responses = $this->getStudentResponses($student_id);
+
+        $student = $this->getStudent($student_id);
+        $student_name = $student->getFullName();
+
+        foreach ($this->assessments as $assessment) {
+            $assessment = $this->getAssessment($assessment->id);
+
+            $student_responses_by_assessment = array_filter($student_responses, function($response) use ($assessment) {
+                return $response->assessment_id === $assessment->id;
+            });
+
+            $total_student_responses = count($student_responses_by_assessment);
+
+            $completed = "$student_name has completed $assessment->name assessment $total_student_responses times in total. Date and raw score given below:";
+
+            $report[] = $completed;
+            $report[] = "";
+
+            // Sort the responses by earliest completed date to latest
+            usort($student_responses_by_assessment, function($a, $b) {
+                if ($a->completed_date === $b->completed_date) {
+                    return 0;
+                }
+
+                return ($a->completed_date > $b->completed_date) ? 1 : -1;
+            });
+
+            foreach ($student_responses_by_assessment as $student_response) {
+                $completed_date = $student_response->completed_date->format('jS F Y h:i A');
+                $score = $student_response->getScore();
+                $total_questions = $student_response->getTotalQuestions();
+
+                $report[] = "Date: $completed_date, Raw Score: $score out of $total_questions";
+            }
+
+            $report[] = "";
+
+            $student_recent_response = $this->getRecentCompletedResponse($student_responses);
+            $student_oldest_response = $this->getOldestCompletedResponse($student_responses);
+
+            $score_difference = $student_recent_response->getScore() - $student_oldest_response->getScore();
+
+            if ($score_difference >= 0) {
+                $score = abs($score_difference) . " more";
+            } elseif ($score_difference < 0) {
+                $score = abs($score_difference) . " less";
+            }
+
+            $progress = "$student_name got $score correct in the recent completed assessment than the oldest";
+
+            $report[] = $progress;
+            $report[] = "";
+        }
+
+        return $report;
     }
 
     private function generateFeedbackReport($student_id)
@@ -253,7 +320,7 @@ final class Reporting
      * @throws Exception
      * 
      */
-    private function getLastCompletedResponse($student_responses)
+    private function getRecentCompletedResponse($student_responses)
     {
         $completed_response = array_reduce($student_responses, function($carry, $item) {
             if (! $carry) {
@@ -261,6 +328,27 @@ final class Reporting
             }
 
             return $item->completed_date > $carry->completed_date ? $item : $carry;
+        });
+
+        return $completed_response;
+    }
+
+    /**
+     * Gets the oldest completed response for a student
+     * 
+     * @param array $student_responses
+     * @return StudentResponse
+     * @throws Exception
+     * 
+     */
+    private function getOldestCompletedResponse($student_responses)
+    {
+        $completed_response = array_reduce($student_responses, function($carry, $item) {
+            if (! $carry) {
+                return $item;
+            }
+
+            return $item->completed_date < $carry->completed_date ? $item : $carry;
         });
 
         return $completed_response;

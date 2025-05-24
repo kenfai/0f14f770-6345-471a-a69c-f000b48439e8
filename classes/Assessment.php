@@ -6,7 +6,7 @@ class Assessment {
      *
      * @var string
      */
-    private string $id;
+    public string $id;
 
     /**
      * Assessment name
