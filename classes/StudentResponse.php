@@ -163,4 +163,18 @@ class StudentResponse
 
         return $total;
     }
+
+    /**
+     * Gets the wrong answers
+     * 
+     * @return array
+     */
+    public function getWrongAnswers(): array
+    {
+        $wrong_answers = array_filter($this->responses, function($response) {
+            return $response->response !== $response->question->config->key;
+        });
+
+        return $wrong_answers;
+    }
 }

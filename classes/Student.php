@@ -51,7 +51,12 @@ class Student
         $this->year_level = $year_level;
     }
 
-    public function getFullName()
+    /**
+     * Gets the student full name
+     * 
+     * @return string
+     */
+    public function getFullName(): string
     {
         return implode(' ', array_filter(
             [

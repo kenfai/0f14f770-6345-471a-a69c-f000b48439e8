@@ -7,29 +7,34 @@ final class Reporting
      * 
      * @var array
      */
-    private $students = [];
+    private array $students = [];
 
     /**
      * Array of assessments
      * 
      * @var array
      */
-    private $assessments = [];
+    private array $assessments = [];
 
     /**
      * Array of questions
      * 
      * @var array
      */
-    private $questions = [];
+    private array $questions = [];
 
     /**
      * Array of responses
      * 
      * @var array
      */
-    private $responses = [];
+    private array $responses = [];
 
+    /**
+     * Reporting constructor
+     * 
+     * @return void
+     */
     public function __construct()
     {
         // Load the data from the JSON files into memory
@@ -39,13 +44,22 @@ final class Reporting
         $this->responses = $this->loadData('student-responses');
     }
 
-    public function main()
+    /**
+     * Main function of the program entry point
+     * 
+     * @return void
+     */
+    public function main(): void
     {
         $this->output();
-
     }
 
-    private function output()
+    /**
+     * Outputs the prompt and report to the console
+     * 
+     * @return void
+     */
+    private function output(): void
     {
         echo "Please enter the following\n";
 
@@ -59,12 +73,12 @@ final class Reporting
     /**
      * Loads the data from the specified file
      * @param string $file
-     * @return array
+     * @return mixed
      * @throws Exception
      * @throws JsonException
      * 
      */
-    private function loadData($file)
+    private function loadData(string $file)
     {
         $path = 'data/' . $file . '.json';
         $json_raw = file_get_contents($path);
@@ -72,7 +86,15 @@ final class Reporting
         return json_decode($json_raw);
     }
 
-    private function generateReport($student_id, $report_type)
+    /**
+     * Generates a report based on the report type
+     * 
+     * @param string $student_id
+     * @param int $report_type
+     * 
+     * @return void
+     */
+    private function generateReport(string $student_id, int $report_type): void
     {
         $report = [];
 
@@ -90,7 +112,9 @@ final class Reporting
                 throw new Exception("Invalid report type");
         }
 
+        echo "\n";
         echo implode("\n", $report);
+        echo "\n";
     }
 
     /**
@@ -100,7 +124,7 @@ final class Reporting
      * 
      * @return array
      */
-    private function generateDiagnosticReport($student_id)
+    private function generateDiagnosticReport(string $student_id): array
     {
         $student_responses = $this->getStudentResponses($student_id);
         $student_recent_response = $this->getRecentCompletedResponse($student_responses);
@@ -146,7 +170,7 @@ final class Reporting
      * 
      * @return array
      */
-    private function generateProgressReport($student_id)
+    private function generateProgressReport(string $student_id): array
     {
         $report = [];
 
@@ -208,9 +232,54 @@ final class Reporting
         return $report;
     }
 
-    private function generateFeedbackReport($student_id)
+    /**
+     * Generates a feedback report for a student
+     * 
+     * @param string $student_id
+     * 
+     * @return array
+     * 
+     * @throws Exception
+     */
+    private function generateFeedbackReport(string $student_id): array
     {
+        $student_responses = $this->getStudentResponses($student_id);
+        $student_recent_response = $this->getRecentCompletedResponse($student_responses);
+        
+        $assessment = $this->getAssessment($student_recent_response->assessment_id);
+        $student_name = $student_recent_response->student->getFullName();
+        $completed_date = $student_recent_response->completed_date->format('jS F Y h:i A');
 
+        $score = $student_recent_response->getScore();
+        $total_questions = $student_recent_response->getTotalQuestions();
+
+        $completed = "$student_name recently completed $assessment->name assessment on $completed_date";
+        $result = "He got $score questions right out of $total_questions. Feedback for wrong answers given below";
+
+        $feedback_breakdown = [];
+
+        $wrong_answers = $student_recent_response->getWrongAnswers();
+
+        foreach ($wrong_answers as $wrong_answer) {
+            $question = $wrong_answer->question->stem;
+            $student_answer = $wrong_answer->question->getOption($wrong_answer->response);
+            $right_answer = $wrong_answer->question->getOption($wrong_answer->question->config->key);
+            $hint = $wrong_answer->question->config->hint;
+
+            $feedback_breakdown[] = "Question: $question";
+            $feedback_breakdown[] = "Your answer: $student_answer->label with value $student_answer->value";
+            $feedback_breakdown[] = "Right answer: $right_answer->label with value $right_answer->value";
+            $feedback_breakdown[] = "Hint: $hint";
+            $feedback_breakdown[] = "";
+        }
+
+        return array_merge([
+                $completed,
+                $result,
+                "",
+            ],
+            $feedback_breakdown,
+        );
     }
 
     /**
@@ -247,7 +316,7 @@ final class Reporting
      * @return array
      * @throws Exception
      */
-    private function getStudentResponses($student_id)
+    private function getStudentResponses(string $student_id): array
     {
         $result = [];
 
@@ -294,7 +363,7 @@ final class Reporting
      * @return Assessment
      * @throws Exception
      */
-    private function getAssessment($assessment_id)
+    private function getAssessment(string $assessment_id): Assessment
     {
         $assessment_data = array_filter($this->assessments, function($assessment) use ($assessment_id) {
             return $assessment->id == $assessment_id;
@@ -320,7 +389,7 @@ final class Reporting
      * @throws Exception
      * 
      */
-    private function getRecentCompletedResponse($student_responses)
+    private function getRecentCompletedResponse(array $student_responses): StudentResponse
     {
         $completed_response = array_reduce($student_responses, function($carry, $item) {
             if (! $carry) {
@@ -341,7 +410,7 @@ final class Reporting
      * @throws Exception
      * 
      */
-    private function getOldestCompletedResponse($student_responses)
+    private function getOldestCompletedResponse(array $student_responses): StudentResponse
     {
         $completed_response = array_reduce($student_responses, function($carry, $item) {
             if (! $carry) {
@@ -354,7 +423,16 @@ final class Reporting
         return $completed_response;
     }
 
-    private function getQuestion($question_id)
+    /**
+     * Gets the question data by id
+     * 
+     * @param string $question_id
+     * 
+     * @return Question
+     * 
+     * @throws Exception
+     */
+    private function getQuestion(string $question_id): Question
     {
         $question_data = array_filter($this->questions, function($question) use ($question_id) {
             return $question->id == $question_id;
@@ -380,7 +458,7 @@ final class Reporting
      * 
      * @return array
      */
-    private function getQuestionStrands()
+    private function getQuestionStrands(): array
     {
         $question_strands = array_map(function($question) {
             return $question->strand;

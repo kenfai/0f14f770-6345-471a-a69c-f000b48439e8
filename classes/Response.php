@@ -23,6 +23,15 @@ class Response
      */
     public string $response;
 
+    /**
+     * Response constructor
+     * 
+     * @param string $question_id
+     * @param Question $question
+     * @param string $response
+     * 
+     * @return void
+     */
     public function __construct(
         string $question_id,
         Question $question,

@@ -14,7 +14,7 @@ class Question
      * 
      * @var string
      */
-    private string $stem;
+    public string $stem;
 
     /**
      * Question type
@@ -60,5 +60,33 @@ class Question
         $this->type = $type;
         $this->strand = $strand;
         $this->config = $config;
+    }
+
+    /**
+     * Get option
+     * 
+     * @param string $option_id
+     * 
+     * @return Option
+     * 
+     * @throws Exception
+     */
+    public function getOption(string $option_id): Option
+    {
+        $option = array_filter($this->config->options, function($option) use ($option_id) {
+            return $option->id === $option_id;
+        });
+
+        if (count($option) === 0) {
+            throw new Exception('Option not found');
+        }
+
+        $option = array_shift($option);
+
+        return new Option(
+            id: $option->id,
+            label: $option->label,
+            value: $option->value,
+        );
     }
 }
