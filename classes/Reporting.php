@@ -117,14 +117,23 @@ final class Reporting
         $completed = "$student_name recently completed $assessment->name assessment on $completed_date";
         $result = "He got $score questions right out of $total_questions. Details by strand given below:";
 
-        $score_breakdown = "";
+        $strands = $this->getQuestionStrands();
 
-        return [
-            $completed,
-            $result,
-            "",
-            $score_breakdown,
-        ];
+        $score_breakdown = [];
+
+        foreach ($strands as $strand) {
+            $score = $student_recent_response->getScoreByStrand($strand);
+            $total_questions = $student_recent_response->getTotalQuestionsByStrand($strand);
+            $score_breakdown[] = "$strand: $score out of $total_questions correct";
+        }
+
+        return array_merge([
+                $completed,
+                $result,
+                "",
+            ],
+            $score_breakdown
+        );
     }
 
     private function generateProgressReport($student_id)
@@ -186,8 +195,11 @@ final class Reporting
 
         foreach ($student_responses as $student_response) {
             $responses = array_map(function($response) {
+                $question = $this->getQuestion($response->questionId);
+
                 return new Response(
                     question_id: $response->questionId,
+                    question: $question,
                     response: $response->response,
                 );
             }, $student_response->responses);
@@ -252,5 +264,40 @@ final class Reporting
         });
 
         return $completed_response;
+    }
+
+    private function getQuestion($question_id)
+    {
+        $question_data = array_filter($this->questions, function($question) use ($question_id) {
+            return $question->id == $question_id;
+        });
+
+        if (count($question_data) === 0) {
+            throw new Exception("Question not found!");
+        }
+
+        $question_data = array_shift($question_data);
+
+        return new Question(
+            id: $question_data->id,
+            stem: $question_data->stem,
+            type: $question_data->type,
+            strand: $question_data->strand,
+            config: $question_data->config,
+        );
+    }
+
+    /**
+     * Gets all unique question strands
+     * 
+     * @return array
+     */
+    private function getQuestionStrands()
+    {
+        $question_strands = array_map(function($question) {
+            return $question->strand;
+        }, $this->questions);
+
+        return array_unique($question_strands);
     }
 }

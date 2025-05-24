@@ -10,17 +10,26 @@ class Response
     private string $question_id;
 
     /**
+     * Question
+     * 
+     * @var Question
+     */
+    public Question $question;
+
+    /**
      * Response answer
      * 
      * @var string
      */
-    private string $response;
+    public string $response;
 
     public function __construct(
         string $question_id,
+        Question $question,
         string $response
     ) {
         $this->question_id = $question_id;
+        $this->question = $question;
         $this->response = $response;
     }
 }

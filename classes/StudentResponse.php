@@ -121,4 +121,32 @@ class StudentResponse
     {
         return count($this->responses);
     }
+
+    public function getScoreByStrand($strand)
+    {
+        $score = 0;
+
+        $strand_responses = array_filter($this->responses, function($response) use ($strand) {
+            return $response->question->strand === $strand;
+        });
+
+        $score = array_sum(array_map(function($response) {
+            return $response->response === $response->question->config->key ? 1 : 0;
+        }, $strand_responses));
+
+        return $score;
+    }
+
+    public function getTotalQuestionsByStrand($strand)
+    {
+        $total = 0;
+
+        $strand_responses = array_filter($this->responses, function($response) use ($strand) {
+            return $response->question->strand === $strand;
+        });
+
+        $total = count($strand_responses);
+
+        return $total;
+    }
 }
