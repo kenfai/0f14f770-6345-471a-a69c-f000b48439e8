@@ -1,0 +1,16 @@
+name: Run unit tests
+
+on:
+    push:
+        branches: [ main ]
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Check out repository code
+              uses: actions/checkout@v4
+
+            - name: Run PHPUnit tests
+              run: ./phpunit --bootstrap autoload.php tests
