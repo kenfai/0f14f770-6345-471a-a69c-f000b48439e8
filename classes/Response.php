@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Response class
+ *   - Represents a response data to a question by a student
+ */
 class Response
 {
     /**
@@ -7,7 +11,7 @@ class Response
      * 
      * @var string
      */
-    private readonly string $question_id;
+    public readonly string $question_id;
 
     /**
      * Question

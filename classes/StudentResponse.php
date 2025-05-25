@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * StudentResponse class
+ *   - Represents a StudentResponse data
+ */
 class StudentResponse
 {
     /**

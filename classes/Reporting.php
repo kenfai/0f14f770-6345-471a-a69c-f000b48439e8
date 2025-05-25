@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Reporting class
+ *   - Provides methods to generate reports
+ */
 final class Reporting
 {
     /**
@@ -427,7 +431,7 @@ final class Reporting
      * @throws Exception
      * 
      */
-    private function getRecentCompletedResponse(array $student_responses): StudentResponse
+    public static function getRecentCompletedResponse(array $student_responses): StudentResponse
     {
         $completed_response = array_reduce($student_responses, function($carry, $item) {
             if (! $carry) {
@@ -448,7 +452,7 @@ final class Reporting
      * @throws Exception
      * 
      */
-    private function getOldestCompletedResponse(array $student_responses): StudentResponse
+    public static function getOldestCompletedResponse(array $student_responses): StudentResponse
     {
         $completed_response = array_reduce($student_responses, function($carry, $item) {
             if (! $carry) {

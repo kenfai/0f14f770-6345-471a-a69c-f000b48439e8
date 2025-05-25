@@ -1,9 +1,11 @@
 <?php
+// PROJECT: Coding Challenge - Broadband Solutions Technical Assessment
+// DATE: 2025-05-25
+// AUTHOR: NG KEN FAI (@kenfai)
 
-// Register the autoloader
-spl_autoload_register(function ($class) {
-    include 'classes/' . $class . '.php';
-});
+
+// import the autoload
+require 'autoload.php';
 
 $reporting = new Reporting();
 $reporting->main();

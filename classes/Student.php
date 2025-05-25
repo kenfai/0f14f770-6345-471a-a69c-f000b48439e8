@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Student class
+ *   - Represents a Student data
+ */
+
 class Student
 {
     /**

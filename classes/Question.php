@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Question class
+ *   - Represents a Question data
+ */
 class Question
 {
     /**

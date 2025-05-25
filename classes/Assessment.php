@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Assessment class
+ *   - Represents an Assessment data
+ */
 class Assessment {
     /**
      * Assessment ID

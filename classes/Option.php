@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Option class
+ *   - Represents a multiple choice Option data for a question
+ */
 class Option
 {
     /**
