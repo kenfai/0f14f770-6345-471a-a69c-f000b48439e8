@@ -6,14 +6,14 @@ class Assessment {
      *
      * @var string
      */
-    public string $id;
+    public readonly string $id;
 
     /**
      * Assessment name
      * 
      * @var string
      */
-    public string $name;
+    public readonly string $name;
 
     /**
      * Assessment constructor

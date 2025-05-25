@@ -7,63 +7,63 @@ class StudentResponse
      *
      * @var string
      */
-    private string $id;
+    private readonly string $id;
 
     /**
      * Assessment ID
      * 
      * @var string
      */
-    public string $assessment_id;
+    public readonly string $assessment_id;
 
     /**
      * Assigned date
      * 
      * @var DateTime
      */
-    private DateTime $assigned_date;
+    private readonly DateTime $assigned_date;
 
     /**
      * Started date
      * 
      * @var DateTime
      */
-    private ?DateTime $started_date;
+    private readonly ?DateTime $started_date;
 
     /**
      * Completed date
      * 
      * @var DateTime
      */
-    public ?DateTime $completed_date;
+    public readonly ?DateTime $completed_date;
 
     /**
      * Student
      * 
      * @var Student
      */
-    public Student $student;
+    public readonly Student $student;
 
     /**
      * Year level
      * 
      * @var int
      */
-    private int $year_level;
+    private readonly int $year_level;
 
     /**
      * Responses
      * 
      * @var array
      */
-    private array $responses;
+    private readonly array $responses;
 
     /**
      * Result score
      * 
      * @var int
      */
-    private int $score;
+    private readonly int $score;
 
     /**
      * Constructor

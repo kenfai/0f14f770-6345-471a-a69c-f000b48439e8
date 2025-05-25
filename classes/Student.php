@@ -7,28 +7,28 @@ class Student
      * 
      * @var string
      */
-    private string $id;
+    private readonly string $id;
 
     /**
      * Student first name
      * 
      * @var string
      */
-    private ?string $first_name;
+    private readonly ?string $first_name;
 
     /**
      * Student last name
      * 
      * @var string
      */
-    private ?string $last_name;
+    private readonly ?string $last_name;
 
     /**
      * Student year level
      * 
      * @var int
      */
-    private int $year_level;
+    private readonly int $year_level;
 
     /**
      * Student constructor

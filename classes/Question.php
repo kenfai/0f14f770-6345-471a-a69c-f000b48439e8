@@ -7,35 +7,35 @@ class Question
      *
      * @var string
      */
-    private string $id;
+    private readonly string $id;
 
     /**
      * Question stem
      * 
      * @var string
      */
-    public string $stem;
+    public readonly string $stem;
 
     /**
      * Question type
      * 
      * @var string
      */
-    private string $type;
+    private readonly string $type;
 
     /**
      * Question strand
      *
      * @var string
      */
-    public string $strand;
+    public readonly string $strand;
 
     /**
      * Question config
      * 
      * @var stdClass
      */
-    public stdClass $config;
+    public readonly stdClass $config;
 
     /**
      * Question constructor
@@ -78,7 +78,7 @@ class Question
         });
 
         if (count($option) === 0) {
-            throw new Exception('Option not found');
+            throw new Exception("ERROR: Option not found!");
         }
 
         $option = array_shift($option);

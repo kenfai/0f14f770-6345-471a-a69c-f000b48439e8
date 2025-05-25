@@ -7,21 +7,21 @@ class Option
      *
      * @var string
      */
-    private string $id;
+    private readonly string $id;
 
     /**
      * Option label
      * 
      * @var string
      */
-    public string $label;
+    public readonly string $label;
 
     /**
      * Option value
      * 
      * @var string
      */
-    public string $value;
+    public readonly string $value;
     
     /**
      * Option constructor

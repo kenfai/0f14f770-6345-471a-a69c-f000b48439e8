@@ -7,21 +7,21 @@ class Response
      * 
      * @var string
      */
-    private string $question_id;
+    private readonly string $question_id;
 
     /**
      * Question
      * 
      * @var Question
      */
-    public Question $question;
+    public readonly Question $question;
 
     /**
      * Response answer
      * 
      * @var string
      */
-    public string $response;
+    public readonly string $response;
 
     /**
      * Response constructor

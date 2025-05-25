@@ -7,28 +7,28 @@ final class Reporting
      * 
      * @var array
      */
-    private array $students = [];
+    private readonly array $students;
 
     /**
      * Array of assessments
      * 
      * @var array
      */
-    private array $assessments = [];
+    private readonly array $assessments;
 
     /**
      * Array of questions
      * 
      * @var array
      */
-    private array $questions = [];
+    private readonly array $questions;
 
     /**
      * Array of responses
      * 
      * @var array
      */
-    private array $responses = [];
+    private readonly array $responses;
 
     /**
      * Reporting constructor
@@ -38,10 +38,15 @@ final class Reporting
     public function __construct()
     {
         // Load the data from the JSON files into memory
-        $this->students = $this->loadData('students');
-        $this->assessments = $this->loadData('assessments');
-        $this->questions = $this->loadData('questions');
-        $this->responses = $this->loadData('student-responses');
+        try {
+            $this->students = $this->loadData('students');
+            $this->assessments = $this->loadData('assessments');
+            $this->questions = $this->loadData('questions');
+            $this->responses = $this->loadData('student-responses');
+        } catch (Exception $e) {
+            echo $e->getMessage() . "\n";
+            exit;
+        }
     }
 
     /**
@@ -58,6 +63,8 @@ final class Reporting
      * Outputs the prompt and report to the console
      * 
      * @return void
+     * 
+     * @throws Exception
      */
     private function output(): void
     {
@@ -65,25 +72,56 @@ final class Reporting
 
         $student_id = readline("Student ID: ");
 
+        try {
+            $this->getStudent($student_id);
+        } catch (Exception $e) {
+            echo $e->getMessage() . "\n";
+            exit;
+        }
+
         $report_type = readline("Report to generate (1 for Diagnostic, 2 for Progress, 3 for Feedback): ");
 
-        $this->generateReport($student_id, $report_type);
+        try {
+            $this->generateReport($student_id, $report_type);
+        } catch (Exception $e) {
+            echo $e->getMessage() . "\n";
+            exit;
+        } catch (TypeError $e) {
+            echo "ERROR: Invalid report type!\n";
+            exit;
+        }
     }
 
     /**
      * Loads the data from the specified file
+     * 
      * @param string $file
+     * 
      * @return mixed
+     * 
      * @throws Exception
      * @throws JsonException
-     * 
      */
     private function loadData(string $file)
     {
         $path = 'data/' . $file . '.json';
+
+        if (! file_exists($path)) {
+            throw new Exception("ERROR: Could not find $file.json!");
+        }
+
         $json_raw = file_get_contents($path);
-        
-        return json_decode($json_raw);
+
+        try {
+            $data = json_decode(
+                json: $json_raw,
+                flags: JSON_THROW_ON_ERROR
+            );
+        } catch (JsonException $e) {
+            throw new Exception("ERROR: Could not load data from $file.json");
+        }
+
+        return $data;
     }
 
     /**
@@ -109,7 +147,7 @@ final class Reporting
                 $report = $this->generateFeedbackReport($student_id);
                 break;
             default:
-                throw new Exception("Invalid report type");
+                throw new Exception("ERROR: Invalid report type!");
         }
 
         echo "\n";
@@ -296,7 +334,7 @@ final class Reporting
         });
 
         if (count($student_data) === 0) {
-            throw new Exception("Student not found!");
+            throw new Exception("ERROR: Student not found!");
         }
 
         $student_data = array_shift($student_data);
@@ -326,7 +364,7 @@ final class Reporting
         });
 
         if (count($student_responses) === 0) {
-            throw new Exception("No completed responses found for student!");
+            throw new Exception("ERROR: No completed responses found for student!");
         }
 
         foreach ($student_responses as $student_response) {
@@ -370,7 +408,7 @@ final class Reporting
         });
 
         if (count($assessment_data) === 0) {
-            throw new Exception("Assessment not found!");
+            throw new Exception("ERROR: Assessment not found!");
         }
 
         $assessment_data = array_shift($assessment_data);
@@ -439,7 +477,7 @@ final class Reporting
         });
 
         if (count($question_data) === 0) {
-            throw new Exception("Question not found!");
+            throw new Exception("ERROR: Question not found!");
         }
 
         $question_data = array_shift($question_data);
